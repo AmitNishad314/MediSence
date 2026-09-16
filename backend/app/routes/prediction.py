@@ -16,6 +16,10 @@ router = APIRouter(
 )
 
 
+# =========================
+# Create prediction
+# =========================
+
 @router.post(
     "/diabetes",
     response_model=DiabetesPredictionResponse,
@@ -25,10 +29,7 @@ def predict_diabetes(
     data: DiabetesPredictionRequest,
     db: Session = Depends(get_db)
 ):
-    # =========================
-    # 1. Find patient
-    # =========================
-
+    # Find patient
     patient = (
         db.query(Patient)
         .filter(
@@ -44,10 +45,7 @@ def predict_diabetes(
         )
 
 
-    # =========================
-    # 2. Run ML prediction
-    # =========================
-
+    # Run ML prediction
     try:
         result = predict_diabetes_risk(
             pregnancies=data.pregnancies,
@@ -73,10 +71,7 @@ def predict_diabetes(
         )
 
 
-    # =========================
-    # 3. Save prediction
-    # =========================
-
+    # Save prediction
     prediction_record = DiabetesPrediction(
         patient_id=data.patient_id,
 
@@ -110,8 +105,48 @@ def predict_diabetes(
     db.refresh(prediction_record)
 
 
-    # =========================
-    # 4. Return saved prediction
-    # =========================
-
     return prediction_record
+
+
+# =========================
+# Get prediction history
+# =========================
+
+@router.get(
+    "/patient/{patient_id}",
+    response_model=list[DiabetesPredictionResponse]
+)
+def get_prediction_history(
+    patient_id: int,
+    db: Session = Depends(get_db)
+):
+    # Check patient
+    patient = (
+        db.query(Patient)
+        .filter(
+            Patient.id == patient_id
+        )
+        .first()
+    )
+
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Patient not found"
+        )
+
+
+    # Get predictions
+    predictions = (
+        db.query(DiabetesPrediction)
+        .filter(
+            DiabetesPrediction.patient_id == patient_id
+        )
+        .order_by(
+            DiabetesPrediction.created_at.desc()
+        )
+        .all()
+    )
+
+
+    return predictions

@@ -8,7 +8,11 @@ from pydantic import BaseModel, ConfigDict, Field
 # -------------------------
 
 class PatientBase(BaseModel):
-    name: str = Field(..., min_length=1, max_length=100)
+    name: str = Field(
+        ...,
+        min_length=1,
+        max_length=100
+    )
 
     age: int = Field(
         ...,
@@ -164,3 +168,7 @@ class DiabetesPredictionResponse(BaseModel):
     probability: float
 
     created_at: datetime | None = None
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )

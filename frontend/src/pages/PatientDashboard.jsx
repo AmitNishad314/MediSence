@@ -6,6 +6,7 @@ import AISummary from "../components/AISummary";
 import DiabetesPrediction from "../components/DiabetesPrediction";
 import MedicalDocumentList from "../components/MedicalDocumentList";
 import MedicalDocumentUpload from "../components/MedicalDocumentUpload";
+import PredictionHistory from "../components/PredictionHistory";
 
 import {
     deleteMedicalRecord,
@@ -13,6 +14,7 @@ import {
     getMedicalDocuments,
     getMedicalRecords,
     getPatient,
+    getPredictionHistory,
 } from "../services/api";
 
 
@@ -20,10 +22,13 @@ function PatientDashboard() {
     const { patientId } = useParams();
     const navigate = useNavigate();
 
+
     const [patient, setPatient] = useState(null);
     const [records, setRecords] = useState([]);
     const [documents, setDocuments] = useState([]);
     const [aiSummary, setAiSummary] = useState("");
+    const [predictions, setPredictions] = useState([]);
+
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -34,26 +39,39 @@ function PatientDashboard() {
             setLoading(true);
             setError("");
 
+
             const [
                 patientData,
                 recordsData,
                 documentsData,
                 summaryData,
+                predictionsData,
             ] = await Promise.all([
                 getPatient(patientId),
                 getMedicalRecords(patientId),
                 getMedicalDocuments(patientId),
                 getAISummary(patientId),
+                getPredictionHistory(patientId),
             ]);
+
 
             setPatient(patientData);
             setRecords(recordsData);
             setDocuments(documentsData);
-            setAiSummary(summaryData.summary || "");
+            setAiSummary(
+                summaryData.summary || ""
+            );
+            setPredictions(
+                predictionsData
+            );
+
 
         } catch (error) {
             console.error(error);
-            setError("Failed to load patient data.");
+            setError(
+                "Failed to load patient data."
+            );
+
 
         } finally {
             setLoading(false);
@@ -74,14 +92,18 @@ function PatientDashboard() {
     };
 
 
-    const handleDeleteRecord = async (recordId) => {
+    const handleDeleteRecord = async (
+        recordId
+    ) => {
         const confirmed = window.confirm(
             "Are you sure you want to delete this medical record?"
         );
 
+
         if (!confirmed) {
             return;
         }
+
 
         try {
             await deleteMedicalRecord(
@@ -89,20 +111,27 @@ function PatientDashboard() {
                 recordId
             );
 
+
             setRecords((previous) =>
                 previous.filter(
-                    (record) => record.id !== recordId
+                    (record) =>
+                        record.id !== recordId
                 )
             );
 
+
         } catch (error) {
             console.error(error);
-            alert("Failed to delete medical record.");
+            alert(
+                "Failed to delete medical record."
+            );
         }
     };
 
 
-    const handleDocumentUploaded = (document) => {
+    const handleDocumentUploaded = (
+        document
+    ) => {
         setDocuments((previous) => [
             document,
             ...previous,
@@ -131,8 +160,11 @@ function PatientDashboard() {
                     {error || "Patient not found."}
                 </div>
 
+
                 <button
-                    onClick={() => navigate("/patients")}
+                    onClick={() =>
+                        navigate("/patients")
+                    }
                     className="mt-5 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
                 >
                     Back to Patients
@@ -149,7 +181,9 @@ function PatientDashboard() {
             {/* Back button */}
 
             <button
-                onClick={() => navigate("/patients")}
+                onClick={() =>
+                    navigate("/patients")
+                }
                 className="mb-6 text-sm font-medium text-blue-600 transition hover:text-blue-700"
             >
                 ← Back to Patients
@@ -170,11 +204,13 @@ function PatientDashboard() {
                                 .toUpperCase()}
                         </div>
 
+
                         <div>
 
                             <h1 className="text-2xl font-bold text-slate-900">
                                 {patient.name}
                             </h1>
+
 
                             <p className="mt-1 text-sm text-slate-500">
                                 Patient ID:{" "}
@@ -191,6 +227,7 @@ function PatientDashboard() {
                         <p className="text-xs text-blue-500">
                             Medical Records
                         </p>
+
 
                         <p className="text-2xl font-bold text-blue-700">
                             {records.length}
@@ -305,6 +342,7 @@ function PatientDashboard() {
                                                 {record.record_type}
                                             </span>
 
+
                                             {record.record_date && (
 
                                                 <span className="text-sm text-slate-500">
@@ -392,7 +430,9 @@ function PatientDashboard() {
 
                 <AddMedicalRecordForm
                     patientId={patientId}
-                    onRecordAdded={handleRecordAdded}
+                    onRecordAdded={
+                        handleRecordAdded
+                    }
                 />
 
             </section>
@@ -407,6 +447,7 @@ function PatientDashboard() {
                     <h2 className="text-xl font-bold text-slate-900">
                         Medical Documents
                     </h2>
+
 
                     <p className="mt-1 text-sm text-slate-500">
                         Patient reports and medical documents.
@@ -452,6 +493,32 @@ function PatientDashboard() {
             <section className="mt-8">
 
                 <DiabetesPrediction />
+
+            </section>
+
+
+            {/* Prediction History */}
+
+            <section className="mt-8">
+
+                <div className="mb-5">
+
+                    <h2 className="text-xl font-bold text-slate-900">
+                        Prediction History
+                    </h2>
+
+
+                    <p className="mt-1 text-sm text-slate-500">
+                        Previous machine learning predictions
+                        generated for this patient.
+                    </p>
+
+                </div>
+
+
+                <PredictionHistory
+                    predictions={predictions}
+                />
 
             </section>
 
