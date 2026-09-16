@@ -1,7 +1,8 @@
+import os
 import shutil
-from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -12,8 +13,15 @@ router = APIRouter(
     tags=["Medical Documents"]
 )
 
-PROJECT_DIR = Path(__file__).resolve().parents[3]
-UPLOAD_DIR = PROJECT_DIR / "uploads"
+BASE_DIR = os.path.dirname(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.abspath(__file__)
+        )
+    )
+)
+
+UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -35,7 +43,7 @@ def upload_medical_document(
             detail="Patient not found"
         )
 
-    # Only allow PDF files for now
+    # Only allow PDF files
     if file.content_type != "application/pdf":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -43,17 +51,24 @@ def upload_medical_document(
         )
 
     # Create patient-specific folder
-    patient_upload_dir = UPLOAD_DIR / (
+    patient_upload_dir = os.path.join(
+        UPLOAD_DIR,
         f"patient_{patient_id}"
     )
 
-    patient_upload_dir.mkdir(parents=True, exist_ok=True)
+    os.makedirs(
+        patient_upload_dir,
+        exist_ok=True
+    )
 
-    # Prevent duplicate filename issues
-    file_path = patient_upload_dir / Path(file.filename or "document.pdf").name
+    # Use original filename
+    file_path = os.path.join(
+        patient_upload_dir,
+        file.filename
+    )
 
     # Save file
-    with file_path.open("wb") as buffer:
+    with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
     # Get file size
@@ -63,7 +78,7 @@ def upload_medical_document(
     document = MedicalDocument(
         patient_id=patient_id,
         file_name=file.filename,
-        file_path=str(file_path),
+        file_path=file_path,
         file_type=file.content_type,
         file_size=file_size
     )
@@ -83,7 +98,8 @@ def upload_medical_document(
             "uploaded_at": document.uploaded_at
         }
     }
-    
+
+
 @router.get("/")
 def get_medical_documents(
     patient_id: int,
@@ -119,3 +135,73 @@ def get_medical_documents(
         }
         for document in documents
     ]
+
+
+@router.get("/{document_id}/view")
+def view_medical_document(
+    patient_id: int,
+    document_id: int,
+    db: Session = Depends(get_db)
+):
+    document = (
+        db.query(MedicalDocument)
+        .filter(
+            MedicalDocument.id == document_id,
+            MedicalDocument.patient_id == patient_id
+        )
+        .first()
+    )
+
+    if not document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Medical document not found"
+        )
+
+    if not os.path.exists(document.file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Medical document file not found"
+        )
+
+    return FileResponse(
+        path=document.file_path,
+        media_type="application/pdf",
+        filename=document.file_name,
+        content_disposition_type="inline"
+    )
+
+
+@router.get("/{document_id}/download")
+def download_medical_document(
+    patient_id: int,
+    document_id: int,
+    db: Session = Depends(get_db)
+):
+    document = (
+        db.query(MedicalDocument)
+        .filter(
+            MedicalDocument.id == document_id,
+            MedicalDocument.patient_id == patient_id
+        )
+        .first()
+    )
+
+    if not document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Medical document not found"
+        )
+
+    if not os.path.exists(document.file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Medical document file not found"
+        )
+
+    return FileResponse(
+        path=document.file_path,
+        media_type="application/pdf",
+        filename=document.file_name,
+        content_disposition_type="attachment"
+    )

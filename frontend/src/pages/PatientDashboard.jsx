@@ -350,6 +350,7 @@ function PatientDashboard() {
                     />
 
                     <MedicalDocumentList
+                        patientId={patientId}
                         documents={documents}
                     />
 

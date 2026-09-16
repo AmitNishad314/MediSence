@@ -85,4 +85,18 @@ export const uploadMedicalDocument = async (
     return response.data.document;
 };
 
+export const getMedicalDocumentViewUrl = (
+    patientId,
+    documentId
+) => {
+    return `http://localhost:8000/patients/${patientId}/medical-documents/${documentId}/view`;
+};
+
+export const getMedicalDocumentDownloadUrl = (
+    patientId,
+    documentId
+) => {
+    return `http://localhost:8000/patients/${patientId}/medical-documents/${documentId}/download`;
+};
+
 export default api;
