@@ -1,0 +1,52 @@
+from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy.sql import func
+
+from .database import Base
+
+
+class Patient(Base):
+    __tablename__ = "patients"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    patient_code = Column(
+        String(50),
+        unique=True,
+        nullable=False,
+        index=True
+    )
+
+    name = Column(
+        String(100),
+        nullable=False
+    )
+
+    age = Column(
+        Integer,
+        nullable=False
+    )
+
+    gender = Column(
+        String(20),
+        nullable=False
+    )
+
+    blood_group = Column(
+        String(10),
+        nullable=True
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now()
+    )
+
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now()
+    )

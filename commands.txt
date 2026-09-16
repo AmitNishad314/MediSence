@@ -1,0 +1,17 @@
+cd backend
+
+python3 -m venv venv
+source venv/bin/activate
+
+pip install fastapi uvicorn sqlalchemy psycopg2-binary python-dotenv python-multipart
+
+mkdir -p app/routes
+touch app/__init__.py
+touch app/main.py
+touch app/database.py
+touch app/models.py
+touch app/schemas.py
+touch app/routes/__init__.py
+touch app/routes/patients.py
+touch requirements.txt
+touch .env
