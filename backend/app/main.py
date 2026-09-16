@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from . import models
 from .database import Base, engine
-from .routes import patients
+from .routes import medical_records, patients
 
 
 # Create database tables
@@ -17,19 +17,18 @@ app = FastAPI(
 )
 
 
-# React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[],
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# Routes
+# API routes
 app.include_router(patients.router)
+app.include_router(medical_records.router)
 
 
 @app.get("/")
