@@ -99,4 +99,22 @@ export const getMedicalDocumentDownloadUrl = (
     return `http://localhost:8000/patients/${patientId}/medical-documents/${documentId}/download`;
 };
 
+// ==================== AI SUMMARY ====================
+
+export const getAISummary = async (patientId) => {
+    const response = await api.get(
+        `/patients/${patientId}/ai-summary`
+    );
+
+    return response.data;
+};
+
+export const generateAISummary = async (patientId) => {
+    const response = await api.post(
+        `/patients/${patientId}/ai-summary`
+    );
+
+    return response.data;
+};
+
 export default api;

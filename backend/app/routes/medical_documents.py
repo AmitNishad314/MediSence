@@ -7,11 +7,13 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import MedicalDocument, Patient
+from ..services.pdf_extractor import extract_text_from_pdf
 
 router = APIRouter(
     prefix="/patients/{patient_id}/medical-documents",
     tags=["Medical Documents"]
 )
+
 
 BASE_DIR = os.path.dirname(
     os.path.dirname(
@@ -21,7 +23,10 @@ BASE_DIR = os.path.dirname(
     )
 )
 
-UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
+UPLOAD_DIR = os.path.join(
+    BASE_DIR,
+    "uploads"
+)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -61,26 +66,44 @@ def upload_medical_document(
         exist_ok=True
     )
 
-    # Use original filename
+    # File path
     file_path = os.path.join(
         patient_upload_dir,
         file.filename
     )
 
-    # Save file
+    # Save PDF
     with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+        shutil.copyfileobj(
+            file.file,
+            buffer
+        )
 
     # Get file size
-    file_size = os.path.getsize(file_path)
+    file_size = os.path.getsize(
+        file_path
+    )
 
-    # Save metadata in database
+    # Extract text from PDF
+    try:
+        extracted_text = extract_text_from_pdf(
+            file_path
+        )
+    except Exception as error:
+        print(
+            f"PDF extraction failed: {error}"
+        )
+
+        extracted_text = ""
+
+    # Save document metadata + extracted text
     document = MedicalDocument(
         patient_id=patient_id,
         file_name=file.filename,
         file_path=file_path,
         file_type=file.content_type,
-        file_size=file_size
+        file_size=file_size,
+        extracted_text=extracted_text
     )
 
     db.add(document)
@@ -95,6 +118,7 @@ def upload_medical_document(
             "file_name": document.file_name,
             "file_type": document.file_type,
             "file_size": document.file_size,
+            "extracted_text": document.extracted_text,
             "uploaded_at": document.uploaded_at
         }
     }
@@ -119,8 +143,12 @@ def get_medical_documents(
 
     documents = (
         db.query(MedicalDocument)
-        .filter(MedicalDocument.patient_id == patient_id)
-        .order_by(MedicalDocument.uploaded_at.desc())
+        .filter(
+            MedicalDocument.patient_id == patient_id
+        )
+        .order_by(
+            MedicalDocument.uploaded_at.desc()
+        )
         .all()
     )
 
@@ -158,7 +186,9 @@ def view_medical_document(
             detail="Medical document not found"
         )
 
-    if not os.path.exists(document.file_path):
+    if not os.path.exists(
+        document.file_path
+    ):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Medical document file not found"
@@ -193,7 +223,9 @@ def download_medical_document(
             detail="Medical document not found"
         )
 
-    if not os.path.exists(document.file_path):
+    if not os.path.exists(
+        document.file_path
+    ):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Medical document file not found"

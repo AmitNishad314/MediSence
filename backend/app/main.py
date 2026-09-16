@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from . import models
 from .database import Base, engine
-from .routes import medical_documents, medical_records, patients
+from .routes import ai_summary, medical_documents, medical_records, patients
 
 
 # Create database tables
@@ -31,6 +31,7 @@ app.add_middleware(
 app.include_router(patients.router)
 app.include_router(medical_records.router)
 app.include_router(medical_documents.router)
+app.include_router(ai_summary.router)
 
 
 @app.get("/")

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import AddMedicalRecordForm from "../components/AddMedicalRecordForm";
+import AISummary from "../components/AISummary";
 import MedicalDocumentList from "../components/MedicalDocumentList";
 import MedicalDocumentUpload from "../components/MedicalDocumentUpload";
 
@@ -10,6 +11,7 @@ import {
     getMedicalDocuments,
     getMedicalRecords,
     getPatient,
+    getAISummary,
 } from "../services/api";
 
 function PatientDashboard() {
@@ -19,6 +21,7 @@ function PatientDashboard() {
     const [patient, setPatient] = useState(null);
     const [records, setRecords] = useState([]);
     const [documents, setDocuments] = useState([]);
+    const [aiSummary, setAiSummary] = useState("");
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -32,15 +35,18 @@ function PatientDashboard() {
                 patientData,
                 recordsData,
                 documentsData,
+                summaryData,
             ] = await Promise.all([
                 getPatient(patientId),
                 getMedicalRecords(patientId),
                 getMedicalDocuments(patientId),
+                getAISummary(patientId),
             ]);
 
             setPatient(patientData);
             setRecords(recordsData);
             setDocuments(documentsData);
+            setAiSummary(summaryData.summary || "");
         } catch (error) {
             console.error(error);
             setError("Failed to load patient data.");
@@ -355,6 +361,16 @@ function PatientDashboard() {
                     />
 
                 </div>
+
+            </section>
+
+            {/* AI Summary */}
+            <section className="mt-8">
+
+                <AISummary
+                    patientId={patientId}
+                    initialSummary={aiSummary}
+                />
 
             </section>
 
