@@ -1,138 +1,105 @@
 import { useEffect, useState } from "react";
-import PatientCard from "../components/PatientCard";
 import AddPatientForm from "../components/AddPatientForm";
-import api from "../services/api";
+import PatientCard from "../components/PatientCard";
+import {
+    deletePatient,
+    getPatients,
+} from "../services/api";
 
 function Patients() {
     const [patients, setPatients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [showForm, setShowForm] = useState(false);
+
+    const loadPatients = async () => {
+        try {
+            setLoading(true);
+            setError("");
+
+            const data = await getPatients();
+            setPatients(data);
+        } catch (error) {
+            console.error(error);
+            setError("Failed to load patients.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const loadPatients = async () => {
-            try {
-                setError("");
-                const response = await api.get("/patients/");
-                setPatients(response.data);
-            } catch (error) {
-                console.error(error);
-                setError(
-                    "Unable to load patients. Make sure the backend is running."
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadPatients();
+        void (async () => {
+            await loadPatients();
+        })();
     }, []);
 
-    const handlePatientAdded = (newPatient) => {
-        setPatients((previous) => [
-            newPatient,
-            ...previous,
-        ]);
-
-        setShowForm(false);
+    const handlePatientAdded = (patient) => {
+        setPatients((previous) => [patient, ...previous]);
     };
 
     const handleDelete = async (patientId) => {
-        const confirmed = window.confirm(
-            "Are you sure you want to delete this patient?"
-        );
-
-        if (!confirmed) {
-            return;
-        }
-
         try {
-            await api.delete(`/patients/${patientId}`);
+            await deletePatient(patientId);
 
             setPatients((previous) =>
-                previous.filter(
-                    (patient) => patient.id !== patientId
-                )
+                previous.filter((patient) => patient.id !== patientId)
             );
         } catch (error) {
             console.error(error);
-
-            alert(
-                "Unable to delete patient. Please try again."
-            );
+            alert("Failed to delete patient.");
         }
     };
 
     return (
-        <main className="mx-auto min-h-[calc(100vh-64px)] max-w-7xl px-6 py-10">
-            {/* Page header */}
-            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-                        Patients
-                    </h1>
+        <main className="mx-auto max-w-7xl px-6 py-10">
+            <div className="mb-10">
+                <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+                    Patients
+                </h1>
 
-                    <p className="mt-2 text-sm text-slate-500">
-                        Manage patient records and medical history.
-                    </p>
-                </div>
-
-                <button
-                    onClick={() => setShowForm(true)}
-                    className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-                >
-                    + Add Patient
-                </button>
+                <p className="mt-2 text-slate-500">
+                    Manage patient information and medical history.
+                </p>
             </div>
 
-            {/* Add patient form */}
-            {showForm && (
-                <AddPatientForm
-                    onPatientAdded={handlePatientAdded}
-                    onCancel={() => setShowForm(false)}
-                />
-            )}
+            <AddPatientForm onPatientAdded={handlePatientAdded} />
 
-            {/* Loading */}
-            {loading && (
-                <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
-                    <p className="text-sm text-slate-500">
+            <div className="mt-10">
+                <div className="mb-5 flex items-center justify-between">
+                    <h2 className="text-xl font-semibold text-slate-900">
+                        Patient Records
+                    </h2>
+
+                    <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
+                        {patients.length} patients
+                    </span>
+                </div>
+
+                {loading && (
+                    <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-500">
                         Loading patients...
-                    </p>
-                </div>
-            )}
+                    </div>
+                )}
 
-            {/* Error */}
-            {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-                    {error}
-                </div>
-            )}
+                {error && (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-600">
+                        {error}
+                    </div>
+                )}
 
-            {/* Empty state */}
-            {!loading &&
-                !error &&
-                patients.length === 0 && (
-                    <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-16 text-center">
-                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-2xl">
-                            +
-                        </div>
-
-                        <h2 className="text-lg font-semibold text-slate-900">
+                {!loading && !error && patients.length === 0 && (
+                    <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+                        <h3 className="text-lg font-semibold text-slate-800">
                             No patients yet
-                        </h2>
+                        </h3>
 
                         <p className="mt-2 text-sm text-slate-500">
-                            Add your first patient to get started.
+                            Add your first patient using the form above.
                         </p>
                     </div>
                 )}
 
-            {/* Patient list */}
-            {!loading &&
-                !error &&
-                patients.length > 0 && (
-                    <div className="space-y-4">
+                {!loading && !error && patients.length > 0 && (
+                    <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                         {patients.map((patient) => (
                             <PatientCard
                                 key={patient.id}
@@ -142,6 +109,7 @@ function Patients() {
                         ))}
                     </div>
                 )}
+            </div>
         </main>
     );
 }
