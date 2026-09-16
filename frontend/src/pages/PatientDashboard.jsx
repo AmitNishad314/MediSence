@@ -80,7 +80,9 @@ function PatientDashboard() {
 
 
     useEffect(() => {
-        loadPatientData();
+        void (async () => {
+            await loadPatientData();
+        })();
     }, [patientId]);
 
 

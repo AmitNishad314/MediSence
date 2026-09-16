@@ -2,7 +2,9 @@ import axios from "axios";
 
 
 const api = axios.create({
-    baseURL: "http://localhost:8000",
+    baseURL:
+        import.meta.env.VITE_API_URL ||
+        `http://${window.location.hostname || "localhost"}:8000`,
     headers: {
         "Content-Type": "application/json",
     },
@@ -112,7 +114,7 @@ export const getMedicalDocumentViewUrl = (
     patientId,
     documentId
 ) => {
-    return `http://localhost:8000/patients/${patientId}/medical-documents/${documentId}/view`;
+    return `${api.defaults.baseURL}/patients/${patientId}/medical-documents/${documentId}/view`;
 };
 
 
@@ -120,7 +122,7 @@ export const getMedicalDocumentDownloadUrl = (
     patientId,
     documentId
 ) => {
-    return `http://localhost:8000/patients/${patientId}/medical-documents/${documentId}/download`;
+    return `${api.defaults.baseURL}/patients/${patientId}/medical-documents/${documentId}/download`;
 };
 
 
