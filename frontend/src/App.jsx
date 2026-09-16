@@ -1,27 +1,11 @@
-import { useEffect, useState } from "react";
-import api from "./services/api";
+import Navbar from "./components/Navbar";
+import Patients from "./pages/Patients";
 
 function App() {
-    const [message, setMessage] = useState("Connecting to backend...");
-
-    useEffect(() => {
-        const checkBackend = async () => {
-            try {
-                const response = await api.get("/");
-                setMessage(response.data.message);
-            } catch (error) {
-                console.error(error);
-                setMessage("Backend connection failed");
-            }
-        };
-
-        checkBackend();
-    }, []);
-
     return (
-        <div>
-            <h1>Medisense</h1>
-            <p>{message}</p>
+        <div className="min-h-screen bg-slate-50">
+            <Navbar />
+            <Patients />
         </div>
     );
 }
