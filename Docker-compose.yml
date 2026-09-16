@@ -1,0 +1,53 @@
+services:
+
+  postgres:
+    image: postgres:17-alpine
+
+    container_name: medisense-postgres
+
+    environment:
+      POSTGRES_USER: amitnishad12
+      POSTGRES_DB: medisense
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+
+    container_name: medisense-backend
+
+    ports:
+      - "8000:8000"
+
+    environment:
+      DATABASE_URL: postgresql://amitnishad12@postgres:5432/medisense
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+    depends_on:
+      - postgres
+
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+
+    container_name: medisense-frontend
+
+    ports:
+      - "3000:80"
+
+    depends_on:
+      - backend
+
+
+volumes:
+  postgres_data:
