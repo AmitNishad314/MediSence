@@ -3,16 +3,18 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import AddMedicalRecordForm from "../components/AddMedicalRecordForm";
 import AISummary from "../components/AISummary";
+import DiabetesPrediction from "../components/DiabetesPrediction";
 import MedicalDocumentList from "../components/MedicalDocumentList";
 import MedicalDocumentUpload from "../components/MedicalDocumentUpload";
 
 import {
     deleteMedicalRecord,
+    getAISummary,
     getMedicalDocuments,
     getMedicalRecords,
     getPatient,
-    getAISummary,
 } from "../services/api";
+
 
 function PatientDashboard() {
     const { patientId } = useParams();
@@ -25,6 +27,7 @@ function PatientDashboard() {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
 
     const loadPatientData = async () => {
         try {
@@ -47,17 +50,21 @@ function PatientDashboard() {
             setRecords(recordsData);
             setDocuments(documentsData);
             setAiSummary(summaryData.summary || "");
+
         } catch (error) {
             console.error(error);
             setError("Failed to load patient data.");
+
         } finally {
             setLoading(false);
         }
     };
 
+
     useEffect(() => {
         loadPatientData();
     }, [patientId]);
+
 
     const handleRecordAdded = (record) => {
         setRecords((previous) => [
@@ -65,6 +72,7 @@ function PatientDashboard() {
             ...previous,
         ]);
     };
+
 
     const handleDeleteRecord = async (recordId) => {
         const confirmed = window.confirm(
@@ -86,11 +94,13 @@ function PatientDashboard() {
                     (record) => record.id !== recordId
                 )
             );
+
         } catch (error) {
             console.error(error);
             alert("Failed to delete medical record.");
         }
     };
+
 
     const handleDocumentUploaded = (document) => {
         setDocuments((previous) => [
@@ -99,19 +109,24 @@ function PatientDashboard() {
         ]);
     };
 
+
     if (loading) {
         return (
             <main className="mx-auto max-w-7xl px-6 py-10">
+
                 <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-500">
                     Loading patient...
                 </div>
+
             </main>
         );
     }
 
+
     if (error || !patient) {
         return (
             <main className="mx-auto max-w-7xl px-6 py-10">
+
                 <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-600">
                     {error || "Patient not found."}
                 </div>
@@ -122,14 +137,17 @@ function PatientDashboard() {
                 >
                     Back to Patients
                 </button>
+
             </main>
         );
     }
 
+
     return (
         <main className="mx-auto max-w-7xl px-6 py-10">
 
-            {/* Back Button */}
+            {/* Back button */}
+
             <button
                 onClick={() => navigate("/patients")}
                 className="mb-6 text-sm font-medium text-blue-600 transition hover:text-blue-700"
@@ -137,7 +155,9 @@ function PatientDashboard() {
                 ← Back to Patients
             </button>
 
+
             {/* Patient Information */}
+
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
                 <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -151,6 +171,7 @@ function PatientDashboard() {
                         </div>
 
                         <div>
+
                             <h1 className="text-2xl font-bold text-slate-900">
                                 {patient.name}
                             </h1>
@@ -159,11 +180,14 @@ function PatientDashboard() {
                                 Patient ID:{" "}
                                 {patient.patient_code}
                             </p>
+
                         </div>
 
                     </div>
 
+
                     <div className="rounded-xl bg-blue-50 px-5 py-3">
+
                         <p className="text-xs text-blue-500">
                             Medical Records
                         </p>
@@ -171,14 +195,16 @@ function PatientDashboard() {
                         <p className="text-2xl font-bold text-blue-700">
                             {records.length}
                         </p>
+
                     </div>
 
                 </div>
 
-                {/* Patient Details */}
+
                 <div className="mt-8 grid gap-4 sm:grid-cols-3">
 
                     <div className="rounded-xl bg-slate-50 p-4">
+
                         <p className="text-sm text-slate-500">
                             Age
                         </p>
@@ -186,9 +212,12 @@ function PatientDashboard() {
                         <p className="mt-1 text-lg font-semibold text-slate-900">
                             {patient.age} years
                         </p>
+
                     </div>
 
+
                     <div className="rounded-xl bg-slate-50 p-4">
+
                         <p className="text-sm text-slate-500">
                             Gender
                         </p>
@@ -196,9 +225,12 @@ function PatientDashboard() {
                         <p className="mt-1 text-lg font-semibold text-slate-900">
                             {patient.gender}
                         </p>
+
                     </div>
 
+
                     <div className="rounded-xl bg-slate-50 p-4">
+
                         <p className="text-sm text-slate-500">
                             Blood Group
                         </p>
@@ -207,15 +239,20 @@ function PatientDashboard() {
                             {patient.blood_group ||
                                 "Not specified"}
                         </p>
+
                     </div>
 
                 </div>
+
             </div>
 
+
             {/* Medical History */}
+
             <section className="mt-8">
 
                 <div className="mb-5">
+
                     <h2 className="text-xl font-bold text-slate-900">
                         Medical History
                     </h2>
@@ -224,9 +261,12 @@ function PatientDashboard() {
                         Previous diagnoses, consultations,
                         tests, and other medical events.
                     </p>
+
                 </div>
 
+
                 {records.length === 0 ? (
+
                     <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
 
                         <div className="text-4xl">
@@ -243,10 +283,13 @@ function PatientDashboard() {
                         </p>
 
                     </div>
+
                 ) : (
+
                     <div className="space-y-4">
 
                         {records.map((record) => (
+
                             <div
                                 key={record.id}
                                 className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
@@ -263,7 +306,9 @@ function PatientDashboard() {
                                             </span>
 
                                             {record.record_date && (
+
                                                 <span className="text-sm text-slate-500">
+
                                                     {new Date(
                                                         record.record_date
                                                     ).toLocaleDateString(
@@ -274,33 +319,48 @@ function PatientDashboard() {
                                                             year: "numeric",
                                                         }
                                                     )}
+
                                                 </span>
+
                                             )}
 
                                         </div>
 
+
                                         {record.diagnosis && (
+
                                             <h3 className="mt-3 text-lg font-semibold text-slate-900">
                                                 {record.diagnosis}
                                             </h3>
+
                                         )}
 
+
                                         {record.description && (
+
                                             <p className="mt-2 text-sm leading-6 text-slate-600">
                                                 {record.description}
                                             </p>
+
                                         )}
 
+
                                         {record.doctor_name && (
+
                                             <p className="mt-4 text-sm text-slate-500">
+
                                                 Doctor:{" "}
+
                                                 <span className="font-medium text-slate-700">
                                                     {record.doctor_name}
                                                 </span>
+
                                             </p>
+
                                         )}
 
                                     </div>
+
 
                                     <button
                                         onClick={() =>
@@ -316,14 +376,18 @@ function PatientDashboard() {
                                 </div>
 
                             </div>
+
                         ))}
 
                     </div>
+
                 )}
 
             </section>
 
+
             {/* Add Medical Record */}
+
             <section className="mt-8">
 
                 <AddMedicalRecordForm
@@ -333,10 +397,13 @@ function PatientDashboard() {
 
             </section>
 
+
             {/* Medical Documents */}
+
             <section className="mt-8">
 
                 <div className="mb-5">
+
                     <h2 className="text-xl font-bold text-slate-900">
                         Medical Documents
                     </h2>
@@ -344,7 +411,9 @@ function PatientDashboard() {
                     <p className="mt-1 text-sm text-slate-500">
                         Patient reports and medical documents.
                     </p>
+
                 </div>
+
 
                 <div className="grid gap-6 lg:grid-cols-2">
 
@@ -355,6 +424,7 @@ function PatientDashboard() {
                         }
                     />
 
+
                     <MedicalDocumentList
                         patientId={patientId}
                         documents={documents}
@@ -364,7 +434,9 @@ function PatientDashboard() {
 
             </section>
 
+
             {/* AI Summary */}
+
             <section className="mt-8">
 
                 <AISummary
@@ -374,8 +446,18 @@ function PatientDashboard() {
 
             </section>
 
+
+            {/* ML Prediction */}
+
+            <section className="mt-8">
+
+                <DiabetesPrediction />
+
+            </section>
+
         </main>
     );
 }
+
 
 export default PatientDashboard;

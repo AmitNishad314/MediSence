@@ -1,4 +1,13 @@
-from sqlalchemy import Column, Date, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import (
+    Column,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.sql import func
 
 from .database import Base
@@ -7,7 +16,11 @@ from .database import Base
 class Patient(Base):
     __tablename__ = "patients"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
 
     patient_code = Column(
         String(50),
@@ -56,11 +69,18 @@ class Patient(Base):
 class MedicalRecord(Base):
     __tablename__ = "medical_records"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
 
     patient_id = Column(
         Integer,
-        ForeignKey("patients.id", ondelete="CASCADE"),
+        ForeignKey(
+            "patients.id",
+            ondelete="CASCADE"
+        ),
         nullable=False,
         index=True
     )
@@ -99,11 +119,18 @@ class MedicalRecord(Base):
 class MedicalDocument(Base):
     __tablename__ = "medical_documents"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
 
     patient_id = Column(
         Integer,
-        ForeignKey("patients.id", ondelete="CASCADE"),
+        ForeignKey(
+            "patients.id",
+            ondelete="CASCADE"
+        ),
         nullable=False,
         index=True
     )
@@ -134,6 +161,81 @@ class MedicalDocument(Base):
     )
 
     uploaded_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now()
+    )
+
+
+class DiabetesPrediction(Base):
+    __tablename__ = "diabetes_predictions"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    patient_id = Column(
+        Integer,
+        ForeignKey(
+            "patients.id",
+            ondelete="CASCADE"
+        ),
+        nullable=False,
+        index=True
+    )
+
+    pregnancies = Column(
+        Integer,
+        nullable=False
+    )
+
+    glucose = Column(
+        Float,
+        nullable=False
+    )
+
+    blood_pressure = Column(
+        Float,
+        nullable=False
+    )
+
+    skin_thickness = Column(
+        Float,
+        nullable=False
+    )
+
+    insulin = Column(
+        Float,
+        nullable=False
+    )
+
+    bmi = Column(
+        Float,
+        nullable=False
+    )
+
+    diabetes_pedigree_function = Column(
+        Float,
+        nullable=False
+    )
+
+    age = Column(
+        Integer,
+        nullable=False
+    )
+
+    prediction = Column(
+        Integer,
+        nullable=False
+    )
+
+    probability = Column(
+        Float,
+        nullable=False
+    )
+
+    created_at = Column(
         DateTime(timezone=True),
         server_default=func.now()
     )

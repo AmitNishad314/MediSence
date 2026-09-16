@@ -117,4 +117,18 @@ export const generateAISummary = async (patientId) => {
     return response.data;
 };
 
+// ==================== ML PREDICTION ====================
+
+export const predictDiabetes = async (
+    predictionData
+) => {
+    const response = await api.post(
+        "/predictions/diabetes",
+        predictionData
+    );
+
+    return response.data;
+};
+
+
 export default api;
