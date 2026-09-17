@@ -2,16 +2,9 @@ import axios from "axios";
 
 
 const api = axios.create({
-    baseURL:
-        import.meta.env.VITE_API_URL ||
-        `http://${window.location.hostname || "localhost"}:8000`,
-    headers: {
-        "Content-Type": "application/json",
-    },
+    baseURL: "http://localhost:8000",
 });
 
-
-// ==================== PATIENTS ====================
 
 export const getPatients = async () => {
     const response = await api.get("/patients/");
@@ -45,8 +38,6 @@ export const deletePatient = async (patientId) => {
 };
 
 
-// ==================== MEDICAL RECORDS ====================
-
 export const getMedicalRecords = async (patientId) => {
     const response = await api.get(
         `/patients/${patientId}/medical-records/`
@@ -78,8 +69,6 @@ export const deleteMedicalRecord = async (
     );
 };
 
-
-// ==================== MEDICAL DOCUMENTS ====================
 
 export const getMedicalDocuments = async (patientId) => {
     const response = await api.get(
@@ -114,7 +103,7 @@ export const getMedicalDocumentViewUrl = (
     patientId,
     documentId
 ) => {
-    return `${api.defaults.baseURL}/patients/${patientId}/medical-documents/${documentId}/view`;
+    return `http://localhost:8000/patients/${patientId}/medical-documents/${documentId}/view`;
 };
 
 
@@ -122,11 +111,9 @@ export const getMedicalDocumentDownloadUrl = (
     patientId,
     documentId
 ) => {
-    return `${api.defaults.baseURL}/patients/${patientId}/medical-documents/${documentId}/download`;
+    return `http://localhost:8000/patients/${patientId}/medical-documents/${documentId}/download`;
 };
 
-
-// ==================== AI SUMMARY ====================
 
 export const getAISummary = async (patientId) => {
     const response = await api.get(
@@ -145,8 +132,6 @@ export const generateAISummary = async (patientId) => {
     return response.data;
 };
 
-
-// ==================== ML PREDICTION ====================
 
 export const predictDiabetes = async (
     predictionData
