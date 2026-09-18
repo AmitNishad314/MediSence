@@ -1,174 +1,149 @@
-# Medisense
+<div align="center">
 
-Medisense is a full-stack medical record management system built using **React.js, FastAPI, PostgreSQL, Machine Learning, Generative AI, Docker, and AWS**.
+# 🩺 Medisense
 
-The application allows users to manage patient information, maintain medical records, upload medical documents, generate AI-based medical summaries, and generate diabetes-risk predictions using a Machine Learning model.
+### AI-Powered Medical Record Management System
 
-> **Note:** Medisense is an educational and portfolio project. It is not intended for medical diagnosis, treatment recommendations, or clinical decision-making.
+*A full-stack platform for patient records, document intelligence, and ML-driven health risk prediction.*
 
----
+[![React](https://img.shields.io/badge/React.js-20232A?style=flat&logo=react&logoColor=61DAFB)](#)
+[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)](#)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white)](#)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)](#)
+[![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat&logo=amazonaws&logoColor=white)](#)
+[![OpenAI](https://img.shields.io/badge/OpenAI_API-412991?style=flat&logo=openai&logoColor=white)](#)
+[![License](https://img.shields.io/badge/License-Educational-lightgrey)](#)
 
-## Features
-
-### Patient Management
-
-- Create patients
-- View patient information
-- Delete patients
-- Automatically generated patient codes
-- Store basic patient information
-
-### Medical Records
-
-- Add medical records for patients
-- Store:
-  - Record type
-  - Diagnosis
-  - Description
-  - Record date
-  - Doctor name
-- View patient medical history
-- Delete medical records
-
-### Medical Documents
-
-- Upload medical documents
-- Associate documents with patients
-- View uploaded documents
-- Download documents
-- Extract text from PDF files
-
-### AI Medical Summary
-
-- Generate AI-based summaries of patient information
-- Use medical records and extracted document text
-- Store generated summaries in PostgreSQL
-- Uses the OpenAI API
-- Designed to summarize documented information rather than diagnose medical conditions
-
-### Machine Learning Prediction
-
-- Diabetes-risk prediction using Logistic Regression
-- Uses patient health-related input features
-- Uses StandardScaler for feature scaling
-- Stores predictions and probabilities in PostgreSQL
-- Maintains prediction history for each patient
+</div>
 
 ---
 
-# Technology Stack
-
-## Frontend
-
-- React.js
-- JavaScript
-- Tailwind CSS
-- Axios
-- Vite
-
-## Backend
-
-- Python
-- FastAPI
-- SQLAlchemy
-- Pydantic
-- PyMuPDF
-- OpenAI API
-- Pandas
-- Joblib
-- Scikit-learn
-
-## Database
-
-- PostgreSQL
-
-## Machine Learning
-
-- Scikit-learn
-- Logistic Regression
-- StandardScaler
-- Pandas
-- Joblib
-
-## DevOps
-
-- Docker
-- Docker Compose
-- Nginx
-
-## AWS
-
-- Amazon RDS PostgreSQL
-- Amazon S3
-- Amazon ECR
-- Amazon ECS
-- Application Load Balancer
-- GitHub Actions
+> ⚠️ **Disclaimer:** Medisense is an **educational and portfolio project**. It is **not** intended for medical diagnosis, treatment recommendations, or clinical decision-making.
 
 ---
 
-# System Architecture
+## 📖 Table of Contents
+
+- [Overview](#-overview)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [System Architecture](#-system-architecture)
+- [Project Structure](#-project-structure)
+- [Database Design](#-database-design)
+- [Machine Learning](#-machine-learning)
+- [AI Summary Pipeline](#-ai-summary-pipeline)
+- [REST API Reference](#-rest-api-reference)
+- [Getting Started](#-getting-started)
+- [Environment Variables](#-environment-variables)
+- [Docker Architecture](#-docker-architecture)
+- [AWS Deployment](#-aws-deployment)
+- [Security](#-security-considerations)
+- [Roadmap](#-roadmap)
+- [Project Status](#-project-status)
+- [Learning Outcomes](#-learning-outcomes)
+- [Author](#-author)
+
+---
+
+## 🌟 Overview
+
+**Medisense** is a full-stack medical record management system that lets users manage patient information, maintain medical records, upload and process medical documents, generate **AI-powered summaries**, and predict **diabetes risk** using a trained Machine Learning model — all wrapped in a modern, containerized, cloud-ready architecture.
+
+---
+
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🧑‍⚕️ Patient Management
+- Create, view & delete patients
+- Auto-generated patient codes
+- Centralized patient profile storage
+
+### 📋 Medical Records
+- Add records: type, diagnosis, description, date, doctor
+- Full patient medical history view
+- Delete records
+
+</td>
+<td width="50%" valign="top">
+
+### 📄 Medical Documents
+- Upload & associate documents with patients
+- View / download documents
+- Automatic PDF text extraction
+
+### 🤖 AI Medical Summary
+- GPT-powered summaries from records + documents
+- Persisted in PostgreSQL
+- Summarizes — never diagnoses
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 📊 ML Diabetes Prediction
+- Logistic Regression model
+- StandardScaler feature preprocessing
+- Stores prediction + probability history
+
+</td>
+<td width="50%" valign="top">
+
+### ☁️ Cloud-Native
+- Dockerized microservice architecture
+- Deployed with AWS RDS, S3, ECR & ECS
+- CI/CD via GitHub Actions (in progress)
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React.js · JavaScript · Tailwind CSS · Axios · Vite |
+| **Backend** | Python · FastAPI · SQLAlchemy · Pydantic · PyMuPDF · OpenAI API · Pandas · Joblib · Scikit-learn |
+| **Database** | PostgreSQL |
+| **Machine Learning** | Scikit-learn · Logistic Regression · StandardScaler |
+| **DevOps** | Docker · Docker Compose · Nginx |
+| **Cloud (AWS)** | RDS · S3 · ECR · ECS · Application Load Balancer · GitHub Actions |
+
+---
+
+## 🏗 System Architecture
+
+```mermaid
+flowchart TB
+    A["🖥️ React.js Frontend<br/>JavaScript + Tailwind CSS"] -->|REST API| B["⚙️ FastAPI Backend"]
+    B --> C[("🗄️ PostgreSQL<br/>Patients · Records · Summaries · Predictions")]
+    B --> D["🧠 ML Model<br/>Logistic Regression + StandardScaler"]
+    B --> E["📄 Medical Documents (PDF)"]
+    E --> F["🔍 PyMuPDF<br/>Text Extraction"]
+    F --> G["✨ OpenAI API<br/>AI Summary Generation"]
+    G --> C
+```
+
+---
+
+## 📁 Project Structure
 
 ```text
-                    ┌──────────────────────┐
-                    │      React.js        │
-                    │ JavaScript +         │
-                    │ Tailwind CSS         │
-                    └──────────┬───────────┘
-                               │
-                               │ REST API
-                               ▼
-                    ┌──────────────────────┐
-                    │       FastAPI        │
-                    │      Backend         │
-                    └───────┬───────┬──────┘
-                            │       │
-                 ┌──────────┘       └──────────────┐
-                 ▼                                 ▼
-        ┌──────────────────┐              ┌──────────────────┐
-        │   PostgreSQL     │              │ Machine Learning │
-        │                  │              │      Model       │
-        │ Patients         │              │                  │
-        │ Medical Records  │              │ Logistic         │
-        │ AI Summaries     │              │ Regression       │
-        │ Predictions      │              │ + StandardScaler │
-        └──────────────────┘              └──────────────────┘
-                 │
-                 │
-                 ▼
-        ┌──────────────────┐
-        │ Medical Documents│
-        │      (PDF)       │
-        └────────┬─────────┘
-                 │
-                 ▼
-        ┌──────────────────┐
-        │     PyMuPDF      │
-        │  Text Extraction  │
-        └────────┬─────────┘
-                 │
-                 ▼
-        ┌──────────────────┐
-        │    OpenAI API    │
-        │   AI Summary     │
-        └──────────────────┘
-
-
-Project Structure
 Medisense/
-│
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
 │   │   ├── pages/
-│   │   ├── services/
-│   │   │   └── api.js
-│   │   └── ...
-│   │
+│   │   └── services/api.js
 │   ├── Dockerfile
 │   ├── nginx.conf
-│   ├── package.json
-│   └── ...
+│   └── package.json
 │
 ├── backend/
 │   ├── app/
@@ -176,510 +151,420 @@ Medisense/
 │   │   ├── database.py
 │   │   ├── models.py
 │   │   ├── schemas.py
-│   │   │
 │   │   ├── routes/
 │   │   │   ├── patients.py
 │   │   │   ├── medical_records.py
 │   │   │   ├── medical_documents.py
 │   │   │   ├── ai_summary.py
 │   │   │   └── prediction.py
-│   │   │
 │   │   └── services/
 │   │       ├── pdf_extractor.py
 │   │       ├── ai_summary.py
 │   │       └── ml_prediction.py
-│   │
 │   ├── Dockerfile
-│   ├── requirements.txt
-│   └── ...
+│   └── requirements.txt
 │
 ├── ml/
-│   ├── data/
-│   │   └── diabetes.csv
-│   │
+│   ├── data/diabetes.csv
 │   ├── model/
 │   │   ├── diabetes_model.joblib
 │   │   └── diabetes_scaler.joblib
-│   │
 │   ├── inspect_data.py
 │   └── train.py
 │
 ├── uploads/
-│
 ├── docker-compose.yml
-├── .gitignore
 └── README.md
-Database Design
+```
 
-Medisense uses PostgreSQL with four main tables.
+---
 
-Patients
-patients
-├── id
-├── patient_code
-├── name
-├── age
-├── gender
-├── blood_group
-├── ai_summary
-├── created_at
-└── updated_at
-Medical Records
-medical_records
-├── id
-├── patient_id
-├── record_type
-├── diagnosis
-├── description
-├── record_date
-├── doctor_name
-└── created_at
-Medical Documents
-medical_documents
-├── id
-├── patient_id
-├── file_name
-├── file_path
-├── file_type
-├── file_size
-├── extracted_text
-└── uploaded_at
-Diabetes Predictions
-diabetes_predictions
-├── id
-├── patient_id
-├── pregnancies
-├── glucose
-├── blood_pressure
-├── skin_thickness
-├── insulin
-├── bmi
-├── diabetes_pedigree_function
-├── age
-├── prediction
-├── probability
-└── created_at
-Machine Learning
+## 🗃 Database Design
 
-The diabetes prediction module uses the Pima Indians Diabetes Dataset.
+<details>
+<summary><b>🧑‍⚕️ patients</b></summary>
 
-Dataset
-Rows: 768
-Features: 8
-Target: Outcome
-Features
-Pregnancies
-Glucose
-BloodPressure
-SkinThickness
-Insulin
-BMI
-DiabetesPedigreeFunction
-Age
-Target
-0 → Lower predicted risk
-1 → Higher predicted risk
-ML Pipeline
-Dataset
-   │
-   ▼
-Train/Test Split
-   │
-   ▼
-StandardScaler
-   │
-   ▼
-Logistic Regression
-   │
-   ▼
-Prediction
-   │
-   ▼
-Probability
-   │
-   ▼
-PostgreSQL
-Training Configuration
-Training samples: 614
-Testing samples: 154
-Random state: 42
-Model Evaluation
+```
+id · patient_code · name · age · gender · blood_group
+ai_summary · created_at · updated_at
+```
+</details>
 
-Current test-set performance:
+<details>
+<summary><b>📋 medical_records</b></summary>
 
-Accuracy: 0.7078
-ROC-AUC:  0.8263
+```
+id · patient_id · record_type · diagnosis · description
+record_date · doctor_name · created_at
+```
+</details>
 
-Confusion matrix:
+<details>
+<summary><b>📄 medical_documents</b></summary>
 
+```
+id · patient_id · file_name · file_path · file_type
+file_size · extracted_text · uploaded_at
+```
+</details>
+
+<details>
+<summary><b>📊 diabetes_predictions</b></summary>
+
+```
+id · patient_id · pregnancies · glucose · blood_pressure
+skin_thickness · insulin · bmi · diabetes_pedigree_function
+age · prediction · probability · created_at
+```
+</details>
+
+---
+
+## 🧠 Machine Learning
+
+Trained on the **Pima Indians Diabetes Dataset** (768 rows · 8 features · binary target).
+
+```mermaid
+flowchart LR
+    A[Dataset] --> B[Train/Test Split]
+    B --> C[StandardScaler]
+    C --> D[Logistic Regression]
+    D --> E[Prediction + Probability]
+    E --> F[(PostgreSQL)]
+```
+
+**Features:** Pregnancies · Glucose · BloodPressure · SkinThickness · Insulin · BMI · DiabetesPedigreeFunction · Age
+
+**Training Config:** 614 train / 154 test samples · `random_state=42`
+
+| Metric | Score |
+|---|---|
+| Accuracy | **0.7078** |
+| ROC-AUC | **0.8263** |
+
+**Confusion Matrix**
+
+```
 [[79, 21],
  [24, 30]]
+```
 
-The model is intended for educational demonstration and is not clinically validated.
+> 📌 Model is for **educational demonstration** only — not clinically validated.
 
-AI Summary Pipeline
+---
 
-The AI summary system follows this flow:
+## ✨ AI Summary Pipeline
 
-Patient
-   │
-   ├── Medical Records
-   │
-   ├── Medical Documents
-   │
-   └── Extracted PDF Text
-           │
-           ▼
-      FastAPI Backend
-           │
-           ▼
-       OpenAI API
-           │
-           ▼
-      Generated Summary
-           │
-           ▼
-       PostgreSQL
+```mermaid
+flowchart TB
+    P["🧑‍⚕️ Patient"] --> R["Medical Records"]
+    P --> D["Medical Documents"]
+    D --> T["Extracted PDF Text"]
+    R --> B["⚙️ FastAPI Backend"]
+    T --> B
+    B --> O["✨ OpenAI API"]
+    O --> S["Generated Summary"]
+    S --> DB[("PostgreSQL")]
+```
 
-The AI system summarizes information already stored in Medisense.
+The AI system **summarizes** stored information only. It does **not**:
+- ❌ Diagnose diseases
+- ❌ Prescribe medication
+- ❌ Recommend treatment
+- ❌ Replace healthcare professionals
 
-It is not designed to:
+---
 
-Diagnose diseases
-Prescribe medication
-Recommend treatment
-Replace healthcare professionals
-REST API
-Patient Endpoints
+## 🔌 REST API Reference
+
+<details>
+<summary><b>Patients</b></summary>
+
+```http
 GET    /patients/
 POST   /patients/
 GET    /patients/{patient_id}
 DELETE /patients/{patient_id}
-Medical Record Endpoints
+```
+</details>
+
+<details>
+<summary><b>Medical Records</b></summary>
+
+```http
 GET    /patients/{patient_id}/medical-records/
 POST   /patients/{patient_id}/medical-records/
 DELETE /patients/{patient_id}/medical-records/{record_id}
-Medical Document Endpoints
+```
+</details>
+
+<details>
+<summary><b>Medical Documents</b></summary>
+
+```http
 GET  /patients/{patient_id}/medical-documents/
 POST /patients/{patient_id}/medical-documents/
+GET  /patients/{patient_id}/medical-documents/{document_id}/view
+GET  /patients/{patient_id}/medical-documents/{document_id}/download
+```
+</details>
 
-GET /patients/{patient_id}/medical-documents/{document_id}/view
+<details>
+<summary><b>AI Summary</b></summary>
 
-GET /patients/{patient_id}/medical-documents/{document_id}/download
-AI Summary Endpoints
+```http
 GET  /patients/{patient_id}/ai-summary
 POST /patients/{patient_id}/ai-summary
-Machine Learning Endpoints
+```
+</details>
+
+<details>
+<summary><b>ML Prediction</b></summary>
+
+```http
 POST /predictions/diabetes
 GET  /predictions/patient/{patient_id}
-Health Check
+```
+</details>
+
+<details>
+<summary><b>Health Check</b></summary>
+
+```http
 GET /health
-Running the Project Locally
-Prerequisites
+```
+</details>
 
-Install the following:
+---
 
-Node.js
-Python
-PostgreSQL
-Docker Desktop
-Git
-Run Using Docker Compose
+## 🚀 Getting Started
 
-From the project root:
+### Prerequisites
+`Node.js` · `Python` · `PostgreSQL` · `Docker Desktop` · `Git`
 
+### ▶️ Run with Docker Compose (Recommended)
+
+```bash
 cd Medisense
-
-Build and start all services:
-
 docker compose up --build
+```
 
-The application will run at:
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:3000 |
+| Backend | http://localhost:8000 |
+| Swagger Docs | http://localhost:8000/docs |
+| PostgreSQL | localhost:5432 |
 
-Frontend:
-http://localhost:3000
-
-Backend:
-http://localhost:8000
-
-FastAPI Swagger:
-http://localhost:8000/docs
-
-PostgreSQL:
-localhost:5432
-
-Stop the application:
-
+```bash
+# Stop the application
 docker compose down
 
-Rebuild after code changes:
-
+# Rebuild after code changes
 docker compose up --build
-Run Backend Separately
+```
 
-Navigate to the backend:
+### 🔧 Run Backend Separately
 
+```bash
 cd Medisense/backend
-
-Create a virtual environment:
-
 python3 -m venv venv
-
-Activate it on macOS/Linux:
-
 source venv/bin/activate
-
-Install dependencies:
-
 pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+→ Backend: `http://localhost:8000` | Swagger: `http://localhost:8000/docs`
 
-Create a .env file:
+### 🎨 Run Frontend Separately
 
+```bash
+cd Medisense/frontend
+npm install
+npm run dev
+```
+→ Frontend: `http://localhost:5173`
+
+---
+
+## 🔐 Environment Variables
+
+Create a `.env` file in `backend/`:
+
+```env
 DATABASE_URL=postgresql://<username>:<password>@localhost:5432/medisense
 OPENAI_API_KEY=<your_openai_api_key>
+```
 
-Start FastAPI:
+> 🚫 Never commit `.env` or `backend/.env` to GitHub.
 
-uvicorn app.main:app --reload
+---
 
-Backend:
+## 🐳 Docker Architecture
 
-http://localhost:8000
+```mermaid
+flowchart TB
+    DC["🐳 Docker Compose"] --> FE["Frontend (Nginx)"]
+    DC --> BE["Backend (FastAPI)"]
+    DC --> PG[("PostgreSQL")]
+    BE --> ML["ML Model"]
+    BE --> AI["OpenAI API"]
+    BE --> PDF["PDF Extraction"]
+    FE <-->|HTTP| BE
+```
 
-Swagger API documentation:
+Frontend is built with Node.js and served via Nginx, configured for React SPA routing.
 
-http://localhost:8000/docs
-Run Frontend Separately
+---
 
-Navigate to the frontend:
+## ☁️ AWS Deployment
 
-cd Medisense/frontend
+```mermaid
+flowchart LR
+    A[AWS Account] --> B["Amazon RDS ✅"]
+    B --> C["Amazon S3 ✅"]
+    C --> D["Amazon ECR 🔜"]
+    D --> E["Amazon ECS 🔜"]
+    E --> F["Load Balancer 🔜"]
+    F --> G["Frontend Deploy 🔜"]
+    G --> H["GitHub Actions CI/CD 🔜"]
+```
 
-Install dependencies:
+| Service | Purpose |
+|---|---|
+| **Amazon RDS** | PostgreSQL database (`ap-south-1` / Mumbai) |
+| **Amazon S3** | Medical document storage |
+| **Amazon ECR** | Docker image registry |
+| **Amazon ECS** | Container deployment |
+| **Application Load Balancer** | Traffic routing |
+| **GitHub Actions** | CI/CD automation |
 
-npm install
+**Planned S3 Document Flow:**
 
-Start the development server:
+```mermaid
+flowchart LR
+    A[React] --> B[FastAPI] --> C[Amazon S3] --> D[Medical Documents]
+```
 
-npm run dev
+---
 
-Frontend:
+## 🔒 Security Considerations
 
-http://localhost:5173
-Environment Variables
+- ✅ Never commit `.env` files or expose API keys
+- ✅ Keep S3 buckets private
+- ✅ Restrict database security-group access
+- ✅ Use HTTPS in production
+- ✅ Store secrets via environment variables
+- ✅ Use IAM roles with least-privilege access
+- ✅ Keep the production database private
 
-Sensitive credentials must never be committed to GitHub.
+---
 
-Example:
+## 🗺 Roadmap
 
-DATABASE_URL=postgresql://<username>:<password>@<host>:5432/medisense
-OPENAI_API_KEY=<your_openai_api_key>
+- [ ] Complete Amazon S3 integration
+- [ ] Deploy Docker images via Amazon ECR
+- [ ] Deploy backend using Amazon ECS
+- [ ] Configure Application Load Balancer
+- [ ] Deploy frontend to AWS
+- [ ] Implement GitHub Actions CI/CD
+- [ ] Add HTTPS + custom domain
+- [ ] Add automated testing
+- [ ] Add database migrations (Alembic)
+- [ ] Improve ML evaluation & add more models
+- [ ] Add authentication & role-based access control
+- [ ] Improve monitoring & logging
 
-The following files should remain ignored by Git:
+---
 
-.env
-backend/.env
-Docker Architecture
+## 📊 Project Status
 
-Medisense uses Docker Compose for local container orchestration.
+| Component | Status |
+|---|---|
+| React Frontend | ✅ Completed |
+| FastAPI Backend | ✅ Completed |
+| PostgreSQL | ✅ Completed |
+| Patient Management | ✅ Completed |
+| Medical Records | ✅ Completed |
+| Patient Dashboard | ✅ Completed |
+| PDF Upload & Extraction | ✅ Completed |
+| AI Medical Summary | ✅ Completed |
+| ML Prediction + History | ✅ Completed |
+| Dockerization / Compose | ✅ Completed |
+| Nginx SPA Routing | ✅ Completed |
+| AWS RDS / S3 | ✅ Completed |
+| S3 Backend Integration | 🟡 In Progress |
+| AWS ECR / ECS | ⏳ Planned |
+| Load Balancer | ⏳ Planned |
+| Frontend Cloud Deployment | ⏳ Planned |
+| GitHub Actions CI/CD | ⏳ Planned |
 
-                 Docker Compose
-                       │
-        ┌──────────────┼──────────────┐
-        │              │              │
-        ▼              ▼              ▼
-    Frontend        Backend       PostgreSQL
-     Nginx          FastAPI
-        │              │
-        │              ├── ML Model
-        │              ├── OpenAI API
-        │              └── PDF Extraction
-        │
-        └──────── HTTP ───────────────┘
+---
 
-The frontend is built using Node.js and served using Nginx.
+## 🎓 Learning Outcomes
 
-Nginx is configured to support React SPA routing.
+<table>
+<tr>
+<td valign="top">
 
-AWS Deployment
+**Full-Stack**
+- React.js, JS, Tailwind
+- REST APIs, Axios
+- FastAPI, SQLAlchemy, PostgreSQL
 
-Medisense is being deployed to AWS.
+</td>
+<td valign="top">
 
-Amazon RDS
+**Machine Learning**
+- Preprocessing & scaling
+- Logistic Regression
+- Model evaluation & serialization
 
-PostgreSQL has been migrated to Amazon RDS.
+</td>
+<td valign="top">
 
-Service: Amazon RDS
-Engine: PostgreSQL
-Region: ap-south-1 (Mumbai)
+**Generative AI**
+- OpenAI API integration
+- Structured + unstructured data fusion
+- PDF text processing
 
-RDS stores:
+</td>
+</tr>
+<tr>
+<td valign="top">
 
-Patient information
-Medical records
-Medical document metadata
-AI summaries
-ML predictions
-Amazon S3
+**DevOps**
+- Docker & Docker Compose
+- Nginx
+- Containerized architecture
 
-An Amazon S3 bucket has been created for medical document storage.
+</td>
+<td valign="top">
 
-The planned document architecture is:
+**Cloud**
+- Amazon RDS, S3
+- Amazon ECR, ECS
+- Load Balancer, GitHub Actions
 
-React
-  │
-  ▼
-FastAPI
-  │
-  ▼
-Amazon S3
-  │
-  └── Medical Documents
+</td>
+<td></td>
+</tr>
+</table>
 
-The backend is being migrated from local document storage to S3.
+---
 
-AWS Deployment Roadmap
-AWS Account
-     │
-     ▼
-Amazon RDS PostgreSQL       ✓
-     │
-     ▼
-Amazon S3                   ✓
-     │
-     ▼
-Amazon ECR
-     │
-     ▼
-Amazon ECS
-     │
-     ▼
-Application Load Balancer
-     │
-     ▼
-Frontend Deployment
-     │
-     ▼
-GitHub Actions CI/CD
-AWS Services
-Service	Purpose
-Amazon RDS	PostgreSQL database
-Amazon S3	Medical document storage
-Amazon ECR	Docker image registry
-Amazon ECS	Container deployment
-Application Load Balancer	Traffic routing
-GitHub Actions	CI/CD automation
-Security Considerations
+## 👤 Author
 
-Medisense is an educational and portfolio project.
+**Amit Nishad**
+B.Tech Biotechnology · Indian Institute of Technology Hyderabad
 
-Security practices include:
+*Interests: Software Development · Full-Stack Development · Machine Learning · AI · Cloud Computing · DevOps*
 
-Never commit .env files
-Never expose API keys
-Keep S3 buckets private
-Restrict database security-group access
-Use HTTPS in production
-Store secrets using environment variables
-Use IAM roles for AWS services
-Follow least-privilege access
-Keep the production database private whenever possible
-Future Improvements
-Complete Amazon S3 integration
-Deploy Docker images using Amazon ECR
-Deploy backend using Amazon ECS
-Configure Application Load Balancer
-Deploy frontend to AWS
-Implement GitHub Actions CI/CD
-Add HTTPS and custom domain
-Add automated testing
-Add database migrations using Alembic
-Improve ML model evaluation
-Add additional ML models
-Improve document processing
-Add authentication and authorization for production use
-Add role-based access control
-Improve application monitoring and logging
-Project Status
-Component	Status
-React Frontend	Completed
-FastAPI Backend	Completed
-PostgreSQL	Completed
-Patient Management	Completed
-Medical Records	Completed
-Patient Dashboard	Completed
-PDF Upload	Completed
-PDF Text Extraction	Completed
-AI Medical Summary	Completed
-ML Prediction	Completed
-Prediction History	Completed
-Dockerization	Completed
-Docker Compose	Completed
-Nginx SPA Routing	Completed
-AWS RDS	Completed
-AWS S3 Bucket	Completed
-S3 Backend Integration	In Progress
-AWS ECR	Planned
-AWS ECS	Planned
-Application Load Balancer	Planned
-Frontend Cloud Deployment	Planned
-GitHub Actions CI/CD	Planned
-Learning Outcomes
+---
 
-Through this project, I worked with:
+<div align="center">
 
-Full-Stack Development
-React.js
-JavaScript
-Tailwind CSS
-REST APIs
-Axios
-FastAPI
-SQLAlchemy
-PostgreSQL
-Machine Learning
-Data preprocessing
-Train/test splitting
-Feature scaling
-Logistic Regression
-Model evaluation
-Model serialization
-ML model integration with FastAPI
-Generative AI
-OpenAI API integration
-AI-powered summarization
-Combining structured and unstructured data
-Processing extracted PDF text
-DevOps
-Docker
-Docker Compose
-Nginx
-Containerized application architecture
-Cloud
-Amazon RDS
-Amazon S3
-Amazon ECR
-Amazon ECS
-Application Load Balancer
-GitHub Actions CI/CD
-Author
-Amit Nishad
+### ⚠️ Disclaimer
 
-B.Tech Biotechnology
-Indian Institute of Technology Hyderabad
+Medisense is an **educational and portfolio project**. ML predictions and AI-generated summaries are demonstrations of software/AI integration — **not** medical diagnoses, treatment recommendations, or substitutes for professional medical advice.
 
-Interests
-Software Development
-Full-Stack Development
-Machine Learning
-Artificial Intelligence
-Cloud Computing
-DevOps
-Disclaimer
-
-Medisense is an educational and portfolio project.
-
-The Machine Learning predictions and AI-generated summaries are demonstrations of software and AI/ML integration. They are not medical diagnoses, treatment recommendations, or substitutes for professional medical advice.
-
-Sponsored options
-Ad
+</div>
