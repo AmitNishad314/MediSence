@@ -20,7 +20,10 @@ function Patients() {
             setPatients(data);
         } catch (error) {
             console.error(error);
-            setError("Failed to load patients.");
+            setError(
+                error.response?.data?.detail ||
+                "Unable to connect to the backend. Make sure the backend is running."
+            );
         } finally {
             setLoading(false);
         }

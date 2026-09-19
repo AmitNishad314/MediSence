@@ -1,13 +1,23 @@
 import os
-import shutil
+import tempfile
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
-from fastapi.responses import FileResponse
+import boto3
+
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    UploadFile,
+    status,
+)
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import MedicalDocument, Patient
 from ..services.pdf_extractor import extract_text_from_pdf
+
 
 router = APIRouter(
     prefix="/patients/{patient_id}/medical-documents",
@@ -15,21 +25,25 @@ router = APIRouter(
 )
 
 
-BASE_DIR = os.path.dirname(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-        )
+S3_BUCKET_NAME = os.getenv(
+    "S3_BUCKET_NAME"
+)
+
+if not S3_BUCKET_NAME:
+    raise ValueError(
+        "S3_BUCKET_NAME is not set"
     )
+
+
+s3_client = boto3.client(
+    "s3"
 )
 
-UPLOAD_DIR = os.path.join(
-    BASE_DIR,
-    "uploads"
+
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED
 )
-
-
-@router.post("/", status_code=status.HTTP_201_CREATED)
 def upload_medical_document(
     patient_id: int,
     file: UploadFile = File(...),
@@ -38,7 +52,9 @@ def upload_medical_document(
     # Check patient
     patient = (
         db.query(Patient)
-        .filter(Patient.id == patient_id)
+        .filter(
+            Patient.id == patient_id
+        )
         .first()
     )
 
@@ -55,40 +71,57 @@ def upload_medical_document(
             detail="Only PDF files are allowed"
         )
 
-    # Create patient-specific folder
-    patient_upload_dir = os.path.join(
-        UPLOAD_DIR,
-        f"patient_{patient_id}"
+    # Read uploaded file
+    file_content = file.file.read()
+
+    file_size = len(file_content)
+
+    # Create a unique S3 object key
+    s3_key = (
+        f"patients/{patient_id}/"
+        f"{file.filename}"
     )
 
-    os.makedirs(
-        patient_upload_dir,
-        exist_ok=True
-    )
-
-    # File path
-    file_path = os.path.join(
-        patient_upload_dir,
-        file.filename
-    )
-
-    # Save PDF
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(
-            file.file,
-            buffer
+    # Upload to S3
+    try:
+        s3_client.put_object(
+            Bucket=S3_BUCKET_NAME,
+            Key=s3_key,
+            Body=file_content,
+            ContentType="application/pdf"
         )
 
-    # Get file size
-    file_size = os.path.getsize(
-        file_path
-    )
+    except Exception as error:
+        print(
+            f"S3 upload failed: {error}"
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to upload medical document"
+        )
 
     # Extract text from PDF
+    extracted_text = ""
+
+    temp_file_path = None
+
     try:
+        with tempfile.NamedTemporaryFile(
+            suffix=".pdf",
+            delete=False
+        ) as temp_file:
+
+            temp_file.write(
+                file_content
+            )
+
+            temp_file_path = temp_file.name
+
         extracted_text = extract_text_from_pdf(
-            file_path
+            temp_file_path
         )
+
     except Exception as error:
         print(
             f"PDF extraction failed: {error}"
@@ -96,19 +129,53 @@ def upload_medical_document(
 
         extracted_text = ""
 
+    finally:
+        if (
+            temp_file_path
+            and os.path.exists(temp_file_path)
+        ):
+            os.remove(
+                temp_file_path
+            )
+
     # Save document metadata + extracted text
     document = MedicalDocument(
         patient_id=patient_id,
         file_name=file.filename,
-        file_path=file_path,
+        file_path=s3_key,
         file_type=file.content_type,
         file_size=file_size,
         extracted_text=extracted_text
     )
 
-    db.add(document)
-    db.commit()
-    db.refresh(document)
+    try:
+        db.add(document)
+        db.commit()
+        db.refresh(document)
+
+    except Exception as error:
+        db.rollback()
+
+        # Remove uploaded S3 object if
+        # database operation fails
+        try:
+            s3_client.delete_object(
+                Bucket=S3_BUCKET_NAME,
+                Key=s3_key
+            )
+        except Exception as s3_error:
+            print(
+                f"S3 cleanup failed: {s3_error}"
+            )
+
+        print(
+            f"Database save failed: {error}"
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to save medical document"
+        )
 
     return {
         "message": "Medical document uploaded successfully",
@@ -131,7 +198,9 @@ def get_medical_documents(
 ):
     patient = (
         db.query(Patient)
-        .filter(Patient.id == patient_id)
+        .filter(
+            Patient.id == patient_id
+        )
         .first()
     )
 
@@ -165,7 +234,9 @@ def get_medical_documents(
     ]
 
 
-@router.get("/{document_id}/view")
+@router.get(
+    "/{document_id}/view"
+)
 def view_medical_document(
     patient_id: int,
     document_id: int,
@@ -186,23 +257,40 @@ def view_medical_document(
             detail="Medical document not found"
         )
 
-    if not os.path.exists(
-        document.file_path
-    ):
+    try:
+        s3_object = s3_client.get_object(
+            Bucket=S3_BUCKET_NAME,
+            Key=document.file_path
+        )
+
+        file_content = s3_object[
+            "Body"
+        ].read()
+
+    except Exception as error:
+        print(
+            f"S3 document retrieval failed: {error}"
+        )
+
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Medical document file not found"
         )
 
-    return FileResponse(
-        path=document.file_path,
+    return StreamingResponse(
+        iter([file_content]),
         media_type="application/pdf",
-        filename=document.file_name,
-        content_disposition_type="inline"
+        headers={
+            "Content-Disposition": (
+                f'inline; filename="{document.file_name}"'
+            )
+        }
     )
 
 
-@router.get("/{document_id}/download")
+@router.get(
+    "/{document_id}/download"
+)
 def download_medical_document(
     patient_id: int,
     document_id: int,
@@ -223,17 +311,32 @@ def download_medical_document(
             detail="Medical document not found"
         )
 
-    if not os.path.exists(
-        document.file_path
-    ):
+    try:
+        s3_object = s3_client.get_object(
+            Bucket=S3_BUCKET_NAME,
+            Key=document.file_path
+        )
+
+        file_content = s3_object[
+            "Body"
+        ].read()
+
+    except Exception as error:
+        print(
+            f"S3 document retrieval failed: {error}"
+        )
+
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Medical document file not found"
         )
 
-    return FileResponse(
-        path=document.file_path,
+    return StreamingResponse(
+        iter([file_content]),
         media_type="application/pdf",
-        filename=document.file_name,
-        content_disposition_type="attachment"
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="{document.file_name}"'
+            )
+        }
     )
